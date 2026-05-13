@@ -35,7 +35,7 @@
 
 **Android 12+** (API 31) on an **arm64-v8a** device with at least **6 GB RAM** (8 GB+ recommended for multimodal models). Nearly all Android phones from 2017+ meet these requirements.
 
-Android 12 is the minimum because Google's [LiteRT](https://ai.google.dev/edge/litert) runtime requires GPU acceleration APIs not available on older versions. **Other architectures (armeabi-v7a, x86, x86_64) are not supported**  — the LiteRT native library crashes on x86_64 emulators due to unsupported CPU instructions, and 32-bit architectures have no native libraries at all.
+Android 12 is the minimum because Google's [LiteRT-LM](https://github.com/google-ai-edge/LiteRT-LM) runtime requires GPU acceleration APIs not available on older versions. **Other architectures (armeabi-v7a, x86, x86_64) are not supported**  — the LiteRT native library crashes on x86_64 emulators due to unsupported CPU instructions, and 32-bit architectures have no native libraries at all.
 
 See the [Model Guide](MODELS.md) for per-model RAM requirements.
 
@@ -57,7 +57,7 @@ See the [Model Guide](MODELS.md) for detailed recommendations.
 
 ### Can I use GGUF models?
 
-No. OlliteRT uses Google's [LiteRT](https://ai.google.dev/edge/litert) runtime, which only supports `.litertlm` model files. GGUF (used by llama.cpp/Ollama) is a completely different format. See the [Model Guide](MODELS.md) for supported models and how to import `.litertlm` files.
+No. OlliteRT uses Google's [LiteRT-LM](https://github.com/google-ai-edge/LiteRT-LM) runtime, which only supports `.litertlm` model files. GGUF (used by llama.cpp/Ollama) is a completely different format. See the [Model Guide](MODELS.md) for supported models and how to import `.litertlm` files.
 
 ---
 

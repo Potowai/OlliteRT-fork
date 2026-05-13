@@ -26,7 +26,7 @@
 | **Qwen 2.5 1.5B** | 1.5 GB | 4K | Text | 6 GB | Good text quality for its size, longer context than Gemma 3 1B |
 | **DeepSeek-R1 1.5B** | 1.7 GB | 4K | Text | 6 GB | Reasoning-focused, includes chain-of-thought |
 
-All models are downloaded from [HuggingFace](https://huggingface.co/litert-community) in `.litertlm` format and run on-device via Google's [LiteRT](https://ai.google.dev/edge/litert) runtime.
+All models are downloaded from [HuggingFace](https://huggingface.co/litert-community) in `.litertlm` format and run on-device via Google's [LiteRT-LM](https://github.com/google-ai-edge/LiteRT-LM) runtime.
 
 ## Which Model Should I Pick?
 

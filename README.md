@@ -24,7 +24,7 @@
 
 ## What is OlliteRT?
 
-**Think of it as [Ollama](https://ollama.com) for Android.** Pick a model, tap Start, and your phone becomes an LLM server — runs LLMs on your mobile GPU/CPU via Google's [LiteRT](https://ai.google.dev/edge/litert) runtime and serves them as a standard [OpenAI-compatible HTTP API](https://platform.openai.com/docs/api-reference) on your local network.
+**Think of it as [Ollama](https://ollama.com) for Android.** Pick a model, tap Start, and your phone becomes an LLM server — runs LLMs on your mobile GPU/CPU via Google's [LiteRT-LM](https://github.com/google-ai-edge/LiteRT-LM) runtime and serves them as a standard [OpenAI-compatible HTTP API](https://platform.openai.com/docs/api-reference) on your local network.
 
 **No cloud. No API keys. No subscriptions. Just your phone.**
 
@@ -121,7 +121,7 @@ Full API docs and examples: **[docs/api/API.md](docs/api/API.md)**
 - **Token counts are estimated** — the LiteRT runtime doesn't expose a tokenizer API, so counts are approximated using character length ÷ 4. Reasonably accurate for English text, less so for code or multilingual content.
 - **Imported models are copied to app storage** — when importing a model from your device, the file is copied rather than moved. You can delete the original after import to reclaim space.
 - **No GGUF support** — only `.litertlm` models are supported (LiteRT runtime limitation). Models are available from the [LiteRT Community on HuggingFace](https://huggingface.co/litert-community). Advanced users can convert HuggingFace models to `.litertlm` using Google's [`litert-torch`](https://github.com/google-ai-edge/litert-torch) tooling (Linux, 32GB+ RAM required).
-- **LiteRT runtime constraints** — OlliteRT is built on Google's [LiteRT](https://ai.google.dev/edge/litert) runtime, optimized for mobile. Features like logprobs, grammar-based output constraints, repetition penalties, and LoRA adapters are not available.
+- **LiteRT runtime constraints** — OlliteRT is built on Google's [LiteRT-LM](https://github.com/google-ai-edge/LiteRT-LM) runtime, optimized for mobile. Features like logprobs, grammar-based output constraints, repetition penalties, and LoRA adapters are not available.
 
 </details>
 
