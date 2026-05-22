@@ -318,6 +318,7 @@ class ModelLifecycle(
         Log.i(TAG, "Resolved '${model.name}' to older version ${updatable.commitHash} via updatableModelFiles")
         model.version = updatable.commitHash
         model.downloadFileName = updatable.fileName
+        model.totalBytes = oldPath.length()
         model.updatable = true
         return
       }
@@ -333,6 +334,7 @@ class ModelLifecycle(
         Log.w(TAG, "Resolved '${model.name}' via filesystem scan — found in ${dir.name}/" +
           " (not in updatableModelFiles; allowlist may be incomplete)")
         model.version = dir.name
+        model.totalBytes = candidate.length()
         return
       }
     }
