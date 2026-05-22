@@ -789,6 +789,7 @@
 
   <!-- Model download panel -->
   <string name="model_stop_server_for_benchmark" translatable="false">Stop the server first to run benchmarks</string>
+  <string name="model_stop_server_for_update" translatable="false">Stop the server first to update the model</string>
   <string name="model_loading_hint_wait" translatable="false">Please wait for the current model to finish loading</string>
 
   <!-- Model update -->
