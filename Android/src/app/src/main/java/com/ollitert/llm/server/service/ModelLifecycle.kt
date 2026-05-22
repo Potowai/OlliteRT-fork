@@ -304,7 +304,12 @@ class ModelLifecycle(
   private fun resolveOnDiskVersion(model: Model, externalDir: File) {
     if (model.localModelFilePathOverride.isNotEmpty()) return
     val currentPath = File(externalDir, "${model.normalizedName}/${model.version}/${model.downloadFileName}")
-    if (currentPath.exists()) return
+    if (currentPath.exists()) {
+      Log.i(TAG, "Model '${model.name}' found at current version ${model.version}/" +
+        "${model.downloadFileName}")
+      cleanupOldVersions(model, externalDir)
+      return
+    }
 
     for (updatable in model.updatableModelFiles) {
       if (updatable.commitHash.isEmpty()) continue
@@ -329,6 +334,22 @@ class ModelLifecycle(
           " (not in updatableModelFiles; allowlist may be incomplete)")
         model.version = dir.name
         return
+      }
+    }
+  }
+
+  private fun cleanupOldVersions(model: Model, externalDir: File) {
+    for (updatable in model.updatableModelFiles) {
+      if (updatable.commitHash.isEmpty()) continue
+      val oldDir = File(externalDir, "${model.normalizedName}/${updatable.commitHash}")
+      if (oldDir.isDirectory) {
+        val sizeBytes = oldDir.listFiles()?.sumOf { it.length() } ?: 0
+        if (oldDir.deleteRecursively()) {
+          Log.i(TAG, "Deleted old model version for '${model.name}': ${updatable.commitHash} " +
+            "(freed ${sizeBytes / 1_048_576}MB)")
+        } else {
+          Log.w(TAG, "Failed to delete old model version directory: ${oldDir.absolutePath}")
+        }
       }
     }
   }
