@@ -310,9 +310,24 @@ class ModelLifecycle(
       if (updatable.commitHash.isEmpty()) continue
       val oldPath = File(externalDir, "${model.normalizedName}/${updatable.commitHash}/${updatable.fileName}")
       if (oldPath.exists()) {
+        Log.i(TAG, "Resolved '${model.name}' to older version ${updatable.commitHash} via updatableModelFiles")
         model.version = updatable.commitHash
         model.downloadFileName = updatable.fileName
         model.updatable = true
+        return
+      }
+    }
+
+    // Last resort: scan version directories for the expected model file.
+    val modelDir = File(externalDir, model.normalizedName)
+    if (!modelDir.isDirectory) return
+    val versionDirs = modelDir.listFiles { f -> f.isDirectory } ?: return
+    for (dir in versionDirs) {
+      val candidate = File(dir, model.downloadFileName)
+      if (candidate.isFile && candidate.length() > 0) {
+        Log.w(TAG, "Resolved '${model.name}' via filesystem scan — found in ${dir.name}/" +
+          " (not in updatableModelFiles; allowlist may be incomplete)")
+        model.version = dir.name
         return
       }
     }
