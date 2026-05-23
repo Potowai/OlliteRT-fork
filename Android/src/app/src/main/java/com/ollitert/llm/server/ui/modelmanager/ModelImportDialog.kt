@@ -134,9 +134,9 @@ private inline fun <reified T> safeConfigValue(
 
 private val SUPPORTED_ACCELERATORS: List<Accelerator> =
   if (isPixel10()) {
-    listOf(Accelerator.CPU)
+    listOf(Accelerator.CPU, Accelerator.NPU)
   } else {
-    listOf(Accelerator.CPU, Accelerator.GPU)
+    listOf(Accelerator.CPU, Accelerator.GPU, Accelerator.NPU)
   }
 
 /**
