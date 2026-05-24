@@ -64,6 +64,7 @@ class ServerViewModel @Inject constructor(
   val lastContextUtilization = ServerMetrics.lastContextUtilization
   val activeAccelerator = ServerMetrics.activeAccelerator
   val thinkingEnabled = ServerMetrics.thinkingEnabled
+  val speculativeDecodingEnabled = ServerMetrics.speculativeDecodingEnabled
   val modelLoadTimeMs = ServerMetrics.modelLoadTimeMs
   val isIdleUnloaded = ServerMetrics.isIdleUnloaded
   val loadingStartedAtMs = ServerMetrics.loadingStartedAtMs

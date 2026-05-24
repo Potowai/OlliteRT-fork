@@ -189,6 +189,9 @@ object ServerMetrics {
   private val _thinkingEnabled = sessionFlow(false)
   val thinkingEnabled: StateFlow<Boolean> = _thinkingEnabled.asStateFlow()
 
+  private val _speculativeDecodingEnabled = sessionFlow(false)
+  val speculativeDecodingEnabled: StateFlow<Boolean> = _speculativeDecodingEnabled.asStateFlow()
+
   /** Human-readable error message when status is ERROR, or null. */
   private val _lastError = sessionFlow<String?>(null)
   val lastError: StateFlow<String?> = _lastError.asStateFlow()
@@ -342,6 +345,10 @@ object ServerMetrics {
 
   fun setThinkingEnabled(enabled: Boolean) {
     _thinkingEnabled.value = enabled
+  }
+
+  fun setSpeculativeDecodingEnabled(enabled: Boolean) {
+    _speculativeDecodingEnabled.value = enabled
   }
 
   fun recordModelLoadTime(ms: Long) {

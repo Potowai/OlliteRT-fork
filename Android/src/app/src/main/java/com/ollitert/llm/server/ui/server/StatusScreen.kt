@@ -39,6 +39,7 @@ import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Lan
 import androidx.compose.material.icons.outlined.Psychology
 import androidx.compose.material.icons.outlined.Refresh
+import androidx.compose.material.icons.outlined.Speed
 import androidx.compose.material.icons.outlined.ViewInAr
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -120,6 +121,7 @@ fun StatusScreen(
   val lastItlMs by serverViewModel.lastItlMs.collectAsStateWithLifecycle()
   val activeAccelerator by serverViewModel.activeAccelerator.collectAsStateWithLifecycle()
   val thinkingEnabled by serverViewModel.thinkingEnabled.collectAsStateWithLifecycle()
+  val speculativeDecodingEnabled by serverViewModel.speculativeDecodingEnabled.collectAsStateWithLifecycle()
   val modelLoadTimeMs by serverViewModel.modelLoadTimeMs.collectAsStateWithLifecycle()
   val isIdleUnloaded by serverViewModel.isIdleUnloaded.collectAsStateWithLifecycle()
   val loadingStartedAtMs by serverViewModel.loadingStartedAtMs.collectAsStateWithLifecycle()
@@ -280,6 +282,21 @@ fun StatusScreen(
                 Icon(
                   imageVector = Icons.Outlined.Psychology,
                   contentDescription = stringResource(R.string.status_cd_thinking_enabled),
+                  tint = OlliteRTPrimary,
+                  modifier = Modifier.size(16.dp),
+                )
+              }
+            }
+            if (!isStopped && !isLoading && speculativeDecodingEnabled) {
+              Box(
+                modifier = Modifier
+                  .clip(RoundedCornerShape(6.dp))
+                  .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+                  .padding(horizontal = 6.dp, vertical = 3.dp),
+              ) {
+                Icon(
+                  imageVector = Icons.Outlined.Speed,
+                  contentDescription = stringResource(R.string.status_cd_mtp_enabled),
                   tint = OlliteRTPrimary,
                   modifier = Modifier.size(16.dp),
                 )

@@ -171,6 +171,11 @@ object PrometheusRenderer {
       if (m.isInferring.value) 1L else 0L,
     )
     gauge(
+      "ollitert_model_speculative_decoding_enabled",
+      "Whether speculative decoding (MTP) is enabled for the loaded model (0 or 1).",
+      if (m.speculativeDecodingEnabled.value) 1L else 0L,
+    )
+    gauge(
       "ollitert_model_idle_unloaded",
       "Whether the model is unloaded due to keep_alive idle timeout (0 or 1). Next request triggers auto-reload.",
       if (m.isIdleUnloaded.value) 1L else 0L,

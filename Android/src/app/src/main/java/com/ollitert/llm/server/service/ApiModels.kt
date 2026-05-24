@@ -42,6 +42,7 @@ data class LlmHttpModelCapabilities(
   val image: Boolean = false,
   val audio: Boolean = false,
   val thinking: Boolean = false,
+  val speculative_decoding: Boolean = false,
 )
 
 @Serializable

@@ -455,6 +455,7 @@
   <string name="status_no_model_loaded" translatable="false">No model loaded</string>
   <string name="status_model_loading" translatable="false">Loading…</string>
   <string name="status_cd_thinking_enabled" translatable="false">Thinking enabled</string>
+  <string name="status_cd_mtp_enabled" translatable="false">Speculative decoding enabled</string>
   <string name="status_loading_elapsed" translatable="false">Loading… %1$ds</string>
   <string name="status_loading_elapsed_with_size" translatable="false">%1$s · Loading… %2$ds</string>
   <string name="status_idle_unloaded" translatable="false">Idle — model unloaded to free RAM</string>

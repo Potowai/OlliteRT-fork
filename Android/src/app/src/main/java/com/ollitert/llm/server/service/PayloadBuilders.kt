@@ -23,9 +23,11 @@ import com.ollitert.llm.server.BuildConfig
 import com.ollitert.llm.server.data.Model
 import com.ollitert.llm.server.data.ServerPrefs
 import com.ollitert.llm.server.data.configTemperature
+import com.ollitert.llm.server.data.configSpeculativeDecodingEnabled
 import com.ollitert.llm.server.data.configThinkingEnabled
 import com.ollitert.llm.server.data.configTopK
 import com.ollitert.llm.server.data.configTopP
+import com.ollitert.llm.server.data.isSpeculativeDecodingEnabled
 import com.ollitert.llm.server.data.isThinkingEnabled
 import com.ollitert.llm.server.data.llmSupportAudio
 import com.ollitert.llm.server.data.llmSupportImage
@@ -80,6 +82,7 @@ private fun Model.toModelItem(): LlmHttpModelItem = LlmHttpModelItem(
     image = llmSupportImage,
     audio = llmSupportAudio,
     thinking = isThinkingEnabled,
+    speculative_decoding = isSpeculativeDecodingEnabled,
   ),
   update_available = updatable,
 )
@@ -175,6 +178,7 @@ object PayloadBuilders {
       if (includeMetrics) {
         put("version", JsonPrimitive(BuildConfig.VERSION_NAME))
         put("thinking_enabled", JsonPrimitive(ServerMetrics.thinkingEnabled.value))
+        put("speculative_decoding_enabled", JsonPrimitive(ServerMetrics.speculativeDecodingEnabled.value))
         put("accelerator", JsonPrimitive(ServerMetrics.activeAccelerator.value ?: "unknown"))
         put("is_idle_unloaded", JsonPrimitive(ServerMetrics.isIdleUnloaded.value))
         val metricsMap = buildMap {
@@ -223,6 +227,7 @@ object PayloadBuilders {
       put("top_k", JsonPrimitive(inferenceConfig.configTopK() ?: 0))
       put("top_p", JsonPrimitive(inferenceConfig.configTopP()?.toDouble() ?: 0.0))
       put("thinking_enabled", JsonPrimitive(inferenceConfig.configThinkingEnabled() ?: false))
+      put("speculative_decoding_enabled", JsonPrimitive(inferenceConfig.configSpeculativeDecodingEnabled() ?: false))
       put("auto_truncate_history", JsonPrimitive(ServerPrefs.isAutoTruncateHistory(context)))
       put("auto_trim_prompts", JsonPrimitive(ServerPrefs.isAutoTrimPrompts(context)))
       put("warmup_enabled", JsonPrimitive(ServerPrefs.isWarmupEnabled(context)))

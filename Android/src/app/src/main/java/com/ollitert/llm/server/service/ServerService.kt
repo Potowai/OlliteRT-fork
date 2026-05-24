@@ -41,6 +41,7 @@ import com.ollitert.llm.server.data.Model
 import com.ollitert.llm.server.data.bytesToMb
 import com.ollitert.llm.server.data.llmSupportAudio
 import com.ollitert.llm.server.data.llmSupportImage
+import com.ollitert.llm.server.data.isSpeculativeDecodingEnabled
 import com.ollitert.llm.server.data.isThinkingEnabled
 import com.ollitert.llm.server.data.llmSupportThinking
 import com.ollitert.llm.server.runtime.ServerLlmModelHelper
@@ -530,6 +531,7 @@ class ServerService : Service() {
         model.configValues[com.ollitert.llm.server.data.ConfigKeys.ACCELERATOR.id]?.toString()
       )
       ServerMetrics.setThinkingEnabled(model.isThinkingEnabled)
+      ServerMetrics.setSpeculativeDecodingEnabled(model.isSpeculativeDecodingEnabled)
       ServerMetrics.onServerRunning(wifiIp)
       resetKeepAliveTimer()
       RequestLogStore.addEvent("Model ready: ${model.name} (${SystemClock.elapsedRealtime() - loadStart}ms)", modelName = model.name, category = EventCategory.MODEL)
@@ -610,7 +612,7 @@ class ServerService : Service() {
       appendLine("Name: ${model.name}")
       appendLine("Path: ${model.getPath(this@ServerService)}")
       appendLine("Size: ${sizeMb}MB (${model.totalBytes} bytes)")
-      appendLine("Capabilities: vision=${model.llmSupportImage}, audio=${model.llmSupportAudio}, thinking=${model.llmSupportThinking}")
+      appendLine("Capabilities: vision=${model.llmSupportImage}, audio=${model.llmSupportAudio}, thinking=${model.llmSupportThinking}, speculative_decoding=${model.isSpeculativeDecodingEnabled}")
       if (model.configValues.isNotEmpty()) {
         appendLine("Config:")
         model.configValues.forEach { (k, v) -> appendLine("  $k: $v") }
@@ -1085,8 +1087,9 @@ class ServerService : Service() {
       synchronized(instance.inferenceLock) {
         instance.defaultModel?.let { model ->
           model.configValues = configValues.toMap()
-          // Update thinking state in metrics so the Status screen pill reflects the change
+          // Update thinking/MTP state in metrics so the Status screen reflects the change
           ServerMetrics.setThinkingEnabled(model.isThinkingEnabled)
+          ServerMetrics.setSpeculativeDecodingEnabled(model.isSpeculativeDecodingEnabled)
         }
       }
     }
