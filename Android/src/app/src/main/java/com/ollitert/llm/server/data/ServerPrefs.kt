@@ -179,6 +179,18 @@ private const val KEY_IGNORED_MODEL_UPDATES = "ignored_model_updates"
 private const val KEY_CORRUPTED_DATASTORES = "corrupted_datastores"
 
 // ═══════════════════════════════════════════════════════════════════════════
+// § Advanced Timeouts — configurable inference/lifecycle timeouts
+// ═══════════════════════════════════════════════════════════════════════════
+
+private const val KEY_TIMEOUT_CHAT_COMPLETIONS = "timeout_chat_completions_seconds"
+private const val KEY_TIMEOUT_RESPONSES = "timeout_responses_seconds"
+private const val KEY_TIMEOUT_STREAMING = "timeout_streaming_seconds"
+private const val KEY_TIMEOUT_BLOCKING = "timeout_blocking_seconds"
+private const val KEY_TIMEOUT_WARMUP = "timeout_warmup_seconds"
+private const val KEY_TIMEOUT_KEEP_ALIVE_RECHECK = "timeout_keep_alive_recheck_seconds"
+private const val KEY_TIMEOUT_CLEANUP_AWAIT = "timeout_cleanup_await_seconds"
+
+// ═══════════════════════════════════════════════════════════════════════════
 // § Migrations — prefs key migration, STT key migration
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -303,6 +315,15 @@ object ServerPrefs {
 
   // Model Update Detection
   private val ALLOWLIST_CONTENT_VERSION = IntPref(KEY_ALLOWLIST_CONTENT_VERSION, 0)
+
+  // Advanced Timeouts
+  private val TIMEOUT_CHAT_COMPLETIONS = LongPref(KEY_TIMEOUT_CHAT_COMPLETIONS, CHAT_COMPLETIONS_TIMEOUT_SECONDS)
+  private val TIMEOUT_RESPONSES = LongPref(KEY_TIMEOUT_RESPONSES, RESPONSES_TIMEOUT_SECONDS)
+  private val TIMEOUT_STREAMING = LongPref(KEY_TIMEOUT_STREAMING, STREAMING_TIMEOUT_SECONDS)
+  private val TIMEOUT_BLOCKING = LongPref(KEY_TIMEOUT_BLOCKING, BLOCKING_TIMEOUT_SECONDS)
+  private val TIMEOUT_WARMUP = LongPref(KEY_TIMEOUT_WARMUP, WARMUP_TIMEOUT_SECONDS)
+  private val TIMEOUT_KEEP_ALIVE_RECHECK = LongPref(KEY_TIMEOUT_KEEP_ALIVE_RECHECK, KEEP_ALIVE_RECHECK_MS / 1000)
+  private val TIMEOUT_CLEANUP_AWAIT = LongPref(KEY_TIMEOUT_CLEANUP_AWAIT, CLEANUP_AWAIT_TIMEOUT_SECONDS)
 
   // ══════════════════════════════════════════════════════════════════════════
   // § Server Config
@@ -685,6 +706,31 @@ object ServerPrefs {
   fun clearCorruptedDataStores(context: Context) {
     prefs(context).edit { remove(KEY_CORRUPTED_DATASTORES) }
   }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // § Advanced Timeouts
+  // ══════════════════════════════════════════════════════════════════════════
+
+  fun getTimeoutChatCompletions(context: Context): Long = get(context, TIMEOUT_CHAT_COMPLETIONS)
+  fun setTimeoutChatCompletions(context: Context, seconds: Long) { set(context, TIMEOUT_CHAT_COMPLETIONS, seconds) }
+
+  fun getTimeoutResponses(context: Context): Long = get(context, TIMEOUT_RESPONSES)
+  fun setTimeoutResponses(context: Context, seconds: Long) { set(context, TIMEOUT_RESPONSES, seconds) }
+
+  fun getTimeoutStreaming(context: Context): Long = get(context, TIMEOUT_STREAMING)
+  fun setTimeoutStreaming(context: Context, seconds: Long) { set(context, TIMEOUT_STREAMING, seconds) }
+
+  fun getTimeoutBlocking(context: Context): Long = get(context, TIMEOUT_BLOCKING)
+  fun setTimeoutBlocking(context: Context, seconds: Long) { set(context, TIMEOUT_BLOCKING, seconds) }
+
+  fun getTimeoutWarmup(context: Context): Long = get(context, TIMEOUT_WARMUP)
+  fun setTimeoutWarmup(context: Context, seconds: Long) { set(context, TIMEOUT_WARMUP, seconds) }
+
+  fun getTimeoutKeepAliveRecheckSeconds(context: Context): Long = get(context, TIMEOUT_KEEP_ALIVE_RECHECK)
+  fun setTimeoutKeepAliveRecheckSeconds(context: Context, seconds: Long) { set(context, TIMEOUT_KEEP_ALIVE_RECHECK, seconds) }
+
+  fun getTimeoutCleanupAwait(context: Context): Long = get(context, TIMEOUT_CLEANUP_AWAIT)
+  fun setTimeoutCleanupAwait(context: Context, seconds: Long) { set(context, TIMEOUT_CLEANUP_AWAIT, seconds) }
 
   // ══════════════════════════════════════════════════════════════════════════
   // § Migrations

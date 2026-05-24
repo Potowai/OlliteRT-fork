@@ -418,6 +418,24 @@
   <string name="settings_export_logcat_desc" translatable="false">Share the system log buffer for this app. Useful for diagnosing issues</string>
   <string name="logcat_export_chooser_title" translatable="false">Share debug logs</string>
 
+  <!-- Settings: Advanced Settings -->
+  <string name="settings_card_advanced_settings" translatable="false">Advanced Settings</string>
+  <string name="settings_advanced_timeouts_section" translatable="false">Timeouts</string>
+  <string name="settings_timeout_chat_completions_label" translatable="false">Chat completions timeout</string>
+  <string name="settings_timeout_chat_completions_desc" translatable="false">Maximum time for /v1/chat/completions requests</string>
+  <string name="settings_timeout_responses_label" translatable="false">Responses timeout</string>
+  <string name="settings_timeout_responses_desc" translatable="false">Maximum time for /v1/responses requests</string>
+  <string name="settings_timeout_streaming_label" translatable="false">Streaming timeout</string>
+  <string name="settings_timeout_streaming_desc" translatable="false">Per-chunk idle timeout for streaming inference</string>
+  <string name="settings_timeout_blocking_label" translatable="false">Blocking timeout</string>
+  <string name="settings_timeout_blocking_desc" translatable="false">Timeout for non-streaming inference</string>
+  <string name="settings_timeout_warmup_label" translatable="false">Warmup timeout</string>
+  <string name="settings_timeout_warmup_desc" translatable="false">Maximum wait for warmup inference after model load</string>
+  <string name="settings_timeout_keep_alive_recheck_label" translatable="false">Keep-alive recheck</string>
+  <string name="settings_timeout_keep_alive_recheck_desc" translatable="false">Recheck delay when model is busy at idle-unload time</string>
+  <string name="settings_timeout_cleanup_await_label" translatable="false">Cleanup await</string>
+  <string name="settings_timeout_cleanup_await_desc" translatable="false">Maximum wait for previous model cleanup before init</string>
+
   <!-- Settings: Reset &amp; Footer -->
   <string name="settings_reset_to_defaults" translatable="false">Reset to Defaults</string>
   <string name="settings_whats_new" translatable="false">What\'s New</string>
