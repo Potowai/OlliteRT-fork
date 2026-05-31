@@ -33,6 +33,7 @@ import com.ollitert.llm.server.data.AllowedModel
 import com.ollitert.llm.server.data.DataStoreRepository
 import com.ollitert.llm.server.data.DownloadRepository
 import com.ollitert.llm.server.data.EMPTY_MODEL
+import com.ollitert.llm.server.data.LOG_ERROR_PREVIEW_SHORT_CHARS
 import com.ollitert.llm.server.data.LoadResult
 import com.ollitert.llm.server.data.ServerPrefs
 import com.ollitert.llm.server.data.Model
@@ -716,7 +717,7 @@ constructor(
         _uiState.update {
           it.copy(
             loadingModelAllowlist = false,
-            loadingModelAllowlistError = context.getString(R.string.error_model_list_load_failed_detail, e.message?.take(80) ?: context.getString(R.string.error_unknown)),
+            loadingModelAllowlistError = context.getString(R.string.error_model_list_load_failed_detail, e.message?.take(LOG_ERROR_PREVIEW_SHORT_CHARS) ?: context.getString(R.string.error_unknown)),
           )
         }
       }

@@ -73,6 +73,12 @@ const val RESPONSES_TIMEOUT_SECONDS = 90L
 const val STREAMING_TIMEOUT_SECONDS = 90L
 // Default timeout for non-streaming (blocking) inference.
 const val BLOCKING_TIMEOUT_SECONDS = 30L
+// Streaming SSE coroutine safety buffer: the outer `withTimeout` wrapping channel
+// consumption is `inferenceTimeoutSeconds + this`, giving the inner inference
+// timeout room to fire and unwind before the outer timeout cancels the coroutine.
+// Without the buffer, both timeouts race and gateway-bug hangs are masked.
+// See `InferenceRunner.streamInference` outer wrapper.
+const val STREAM_OUTER_TIMEOUT_SAFETY_BUFFER_SECONDS = 30L
 // Maximum time (seconds) to wait for previous model cleanup before initializing a new one.
 const val CLEANUP_AWAIT_TIMEOUT_SECONDS = 15L
 // Maximum time (ms) for runBlocking DataStore reads during service init / keep-alive reload.
@@ -152,6 +158,12 @@ const val DEFAULT_IN_MEMORY_LOG_CAP = 100
 const val HARD_MAX_IN_MEMORY_ENTRIES = 10_000
 const val MIN_PRUNE_INTERVAL_MS = 60_000L          // 1 minute
 const val MAX_PRUNE_INTERVAL_MS = 6 * 60 * 60 * 1000L // 6 hours
+
+// Error-message preview lengths for log events. Short used for headline/single-line
+// log entries (toasts, single-line cards); long used for body-level entries
+// (multi-line cards, init failures) where more context aids diagnosis.
+const val LOG_ERROR_PREVIEW_SHORT_CHARS = 80
+const val LOG_ERROR_PREVIEW_LONG_CHARS = 120
 
 /** Convert bytes to gigabytes as Float (for UI display). */
 fun Long.bytesToGb(): Float = this / (1024f * 1024f * 1024f)

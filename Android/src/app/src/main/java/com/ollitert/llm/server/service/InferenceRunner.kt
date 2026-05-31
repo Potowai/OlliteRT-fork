@@ -25,8 +25,10 @@ import com.google.ai.edge.litertlm.Contents
 import com.ollitert.llm.server.R
 import com.ollitert.llm.server.data.BLOCKING_TIMEOUT_SECONDS
 import com.ollitert.llm.server.data.CHAT_COMPLETIONS_TIMEOUT_SECONDS
+import com.ollitert.llm.server.data.LOG_ERROR_PREVIEW_SHORT_CHARS
 import com.ollitert.llm.server.data.LOG_STREAMING_PREVIEW_DEBOUNCE_MS
 import com.ollitert.llm.server.data.RequestPrefsSnapshot
+import com.ollitert.llm.server.data.STREAM_OUTER_TIMEOUT_SAFETY_BUFFER_SECONDS
 import com.ollitert.llm.server.data.ServerPrefs
 import com.ollitert.llm.server.data.Model
 import com.ollitert.llm.server.data.RESPONSES_TIMEOUT_SECONDS
@@ -1034,7 +1036,7 @@ class InferenceRunner(
       // Safety timeout: generous buffer beyond inference timeout to catch gateway bugs that
       // would otherwise hang this coroutine indefinitely.
       try {
-        kotlinx.coroutines.withTimeout((timeoutSeconds + 30) * 1000) {
+        kotlinx.coroutines.withTimeout((timeoutSeconds + STREAM_OUTER_TIMEOUT_SAFETY_BUFFER_SECONDS) * 1000) {
           for (event in channel) {
             // Check for client disconnect (Ktor closed the writer)
             if (writer.isCancelled) {
@@ -1132,7 +1134,7 @@ class InferenceRunner(
     if (error != null && error.startsWith("model_init_failed:")) {
       throw RuntimeException(error.removePrefix("model_init_failed: "))
     }
-    val snippet = result?.take(80)?.replace("\n", " ") ?: "no response"
+    val snippet = result?.take(LOG_ERROR_PREVIEW_SHORT_CHARS)?.replace("\n", " ") ?: "no response"
     RequestLogStore.addEvent(
       "Sending a warmup message: \"$WARMUP_MESSAGE\" → \"$snippet\" (${elapsedMs}ms)",
       modelName = model.name,

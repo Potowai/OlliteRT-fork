@@ -77,6 +77,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ollitert.llm.server.R
 import com.ollitert.llm.server.common.copyToClipboard
+import com.ollitert.llm.server.data.LOG_ERROR_PREVIEW_LONG_CHARS
 import com.ollitert.llm.server.ui.common.buildTrackableUrlAnnotatedString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
@@ -91,6 +92,9 @@ import com.ollitert.llm.server.ui.theme.OlliteRTForcedPurple
 import com.ollitert.llm.server.ui.theme.OlliteRTGreen400
 import com.ollitert.llm.server.ui.theme.OlliteRTPrimary
 import com.ollitert.llm.server.ui.theme.SpaceGroteskFontFamily
+
+// Threshold for collapse: messages with more than this many newlines become expandable.
+private const val MIN_LINES_FOR_COLLAPSE = 2
 
 // ── Internal event card ──────────────────────────────────────────────────────
 
@@ -599,7 +603,7 @@ internal fun InternalEventCard(entry: RequestLogEntry, searchQuery: String = "")
 
       null -> {
         // Default: styled text with highlighted values
-        val isLong = message.length > 120 || message.count { it == '\n' } > 2
+        val isLong = message.length > LOG_ERROR_PREVIEW_LONG_CHARS || message.count { it == '\n' } > MIN_LINES_FOR_COLLAPSE
         var expanded by remember { mutableStateOf(false) }
         val styledMessage = remember(message, searchQuery) {
           val base = highlightEventMessage(message, isError, accentColor)

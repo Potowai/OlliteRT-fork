@@ -45,6 +45,8 @@ import com.ollitert.llm.server.data.DEFAULT_TEMPERATURE
 import com.ollitert.llm.server.data.DEFAULT_TOPK
 import com.ollitert.llm.server.data.DEFAULT_TOPP
 import com.ollitert.llm.server.data.DEFAULT_VISION_ACCELERATOR
+import com.ollitert.llm.server.data.LOG_ERROR_PREVIEW_LONG_CHARS
+import com.ollitert.llm.server.data.LOG_ERROR_PREVIEW_SHORT_CHARS
 import com.ollitert.llm.server.data.MIN_STORAGE_FOR_MODEL_INIT_BYTES
 import com.ollitert.llm.server.data.Model
 import com.ollitert.llm.server.data.ModelCapability
@@ -350,7 +352,7 @@ object ServerLlmModelHelper {
       Log.e(TAG, "Engine init failed for '${model.name}' with ${preferredBackend::class.simpleName}: " +
         "[${e::class.simpleName}] ${e.message}", e)
       RequestLogStore.addEvent(
-        "${preferredBackend::class.simpleName} init failed: [${e::class.simpleName}] ${e.message?.take(120)}",
+        "${preferredBackend::class.simpleName} init failed: [${e::class.simpleName}] ${e.message?.take(LOG_ERROR_PREVIEW_LONG_CHARS)}",
         level = LogLevel.ERROR,
         modelName = model.name,
         category = EventCategory.MODEL,
@@ -364,7 +366,7 @@ object ServerLlmModelHelper {
       if (preferredBackend is Backend.GPU && canFallbackToCpu) {
         Log.w(TAG, "GPU initialization failed, retrying with CPU backend")
         RequestLogStore.addEvent(
-          "GPU init failed, retrying with CPU: ${e.message?.take(80)}",
+          "GPU init failed, retrying with CPU: ${e.message?.take(LOG_ERROR_PREVIEW_SHORT_CHARS)}",
           level = LogLevel.WARNING,
           modelName = model.name,
           category = EventCategory.MODEL,
@@ -418,7 +420,7 @@ object ServerLlmModelHelper {
           Log.e(TAG, "CPU fallback also failed for '${model.name}': " +
             "[${fallbackEx::class.simpleName}] ${fallbackEx.message}", fallbackEx)
           RequestLogStore.addEvent(
-            "CPU fallback failed: [${fallbackEx::class.simpleName}] ${fallbackEx.message?.take(120)}",
+            "CPU fallback failed: [${fallbackEx::class.simpleName}] ${fallbackEx.message?.take(LOG_ERROR_PREVIEW_LONG_CHARS)}",
             level = LogLevel.ERROR,
             modelName = model.name,
             category = EventCategory.MODEL,
@@ -503,7 +505,7 @@ object ServerLlmModelHelper {
     } catch (e: Exception) {
       Log.e(TAG, "Failed to reset conversation completely", e)
       RequestLogStore.addEvent(
-        "Failed to reset conversation: ${e.message?.take(80) ?: "Unknown error"}",
+        "Failed to reset conversation: ${e.message?.take(LOG_ERROR_PREVIEW_SHORT_CHARS) ?: "Unknown error"}",
         level = LogLevel.ERROR,
         modelName = model.name,
       )

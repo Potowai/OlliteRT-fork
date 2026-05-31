@@ -34,6 +34,7 @@ import com.ollitert.llm.server.R
 import com.ollitert.llm.server.common.ErrorCategory
 import com.ollitert.llm.server.common.getWifiIpAddress
 import com.ollitert.llm.server.data.DATASTORE_READ_TIMEOUT_MS
+import com.ollitert.llm.server.data.LOG_ERROR_PREVIEW_LONG_CHARS
 import com.ollitert.llm.server.data.ServerPrefs
 import com.ollitert.llm.server.data.MODEL_ALLOWLIST_FILENAME
 import com.ollitert.llm.server.data.MIN_STORAGE_FOR_MODEL_INIT_BYTES
@@ -419,7 +420,7 @@ class ServerService : Service() {
       true
     } catch (e: Exception) {
       val reason = if (e is java.net.BindException || e.message?.contains("Address already in use") == true)
-        getString(R.string.error_port_in_use, port) else (e.message?.take(120) ?: getString(R.string.error_unknown))
+        getString(R.string.error_port_in_use, port) else (e.message?.take(LOG_ERROR_PREVIEW_LONG_CHARS) ?: getString(R.string.error_unknown))
       val msg = getString(R.string.error_server_failed_to_start, reason)
       Log.e(TAG, msg, e)
       ServerMetrics.onServerError(msg)
@@ -643,7 +644,7 @@ class ServerService : Service() {
       ServerPrefs.getSystemPrompt(this, model.prefsKey) else ""
     if (sysPrompt.isNotBlank()) {
       RequestLogStore.addEvent(
-        "System prompt active: \"${sysPrompt.take(120)}\"${if (sysPrompt.length > 120) "…" else ""}",
+        "System prompt active: \"${sysPrompt.take(LOG_ERROR_PREVIEW_LONG_CHARS)}\"${if (sysPrompt.length > LOG_ERROR_PREVIEW_LONG_CHARS) "…" else ""}",
         modelName = model.name,
         category = EventCategory.PROMPT,
         body = buildJsonObject {
@@ -702,7 +703,7 @@ class ServerService : Service() {
     Log.e(TAG, "Failed to load model ${model.name}", t)
     emitDebugStackTrace(t, "model_load", model.name)
     pendingReloadAfterLoad.set(null)
-    val msg = t.message?.take(120) ?: getString(R.string.error_model_init_unknown)
+    val msg = t.message?.take(LOG_ERROR_PREVIEW_LONG_CHARS) ?: getString(R.string.error_model_init_unknown)
     val category = if (t is OutOfMemoryError) ErrorCategory.SYSTEM else ErrorCategory.MODEL_LOAD
     ServerMetrics.onServerError(msg)
     ServerMetrics.incrementErrorCount(category)

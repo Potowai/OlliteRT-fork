@@ -25,6 +25,7 @@ import com.google.ai.edge.litertlm.Content
 import com.google.ai.edge.litertlm.Contents
 import com.ollitert.llm.server.R
 import com.ollitert.llm.server.data.IMPORTS_DIR
+import com.ollitert.llm.server.data.LOG_ERROR_PREVIEW_SHORT_CHARS
 import com.ollitert.llm.server.data.ServerPrefs
 import com.ollitert.llm.server.data.Model
 import com.ollitert.llm.server.data.llmSupportAudio
@@ -433,7 +434,7 @@ class ModelLifecycle(
       } catch (e: Exception) {
         Log.w(TAG, "Failed to decode image data URI", e)
         RequestLogStore.addEvent(
-          "Failed to decode image: ${e.message?.take(80) ?: context.getString(R.string.error_unknown)}",
+          "Failed to decode image: ${e.message?.take(LOG_ERROR_PREVIEW_SHORT_CHARS) ?: context.getString(R.string.error_unknown)}",
           level = LogLevel.ERROR,
           modelName = defaultModel?.name,
           category = EventCategory.SERVER,
@@ -458,7 +459,7 @@ class ModelLifecycle(
       } catch (e: Exception) {
         Log.w(TAG, "Failed to decode audio data", e)
         RequestLogStore.addEvent(
-          "Failed to decode audio: ${e.message?.take(80) ?: context.getString(R.string.error_unknown)}",
+          "Failed to decode audio: ${e.message?.take(LOG_ERROR_PREVIEW_SHORT_CHARS) ?: context.getString(R.string.error_unknown)}",
           level = LogLevel.ERROR,
           modelName = defaultModel?.name,
           category = EventCategory.SERVER,
