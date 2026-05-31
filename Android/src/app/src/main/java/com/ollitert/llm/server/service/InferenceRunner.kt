@@ -149,6 +149,10 @@ class InferenceRunner(
     schemaInjectionProviders: List<com.google.ai.edge.litertlm.ToolProvider> = emptyList(),
     schemaInjectionMessages: List<com.google.ai.edge.litertlm.Message> = emptyList(),
     onNativeToolCalls: ((List<ToolCall>) -> Unit)? = null,
+    // When true the per-model system prompt is suppressed — the request body already
+    // carries an explicit system prompt (Anthropic /v1/messages `system` field) and we
+    // do not want both layered.
+    suppressPerModelSystem: Boolean = false,
   ): Pair<String?, String?> {
     // Track input tokens (rough estimate: ~4 chars per token)
     ServerMetrics.addTokensIn(estimateTokensLong(prompt))
@@ -199,7 +203,7 @@ class InferenceRunner(
           model,
           supportImage = supportImage,
           supportAudio = supportAudio,
-          systemInstruction = buildSystemInstruction(model.prefsKey),
+          systemInstruction = if (suppressPerModelSystem) null else buildSystemInstruction(model.prefsKey),
           tools = schemaInjectionProviders,
           initialMessages = schemaInjectionMessages,
         )
@@ -890,10 +894,11 @@ class InferenceRunner(
     prefs: RequestPrefsSnapshot? = null,
     schemaInjectionProviders: List<com.google.ai.edge.litertlm.ToolProvider> = emptyList(),
     schemaInjectionMessages: List<com.google.ai.edge.litertlm.Message> = emptyList(),
+    suppressPerModelSystem: Boolean = false,
   ): HttpResponse {
     val now = BridgeUtils.epochSeconds()
     val format = ChatCompletionsFormat(model.name, now, stopSequences, tools, json, includeUsage, hasSchemaInjection = schemaInjectionProviders.isNotEmpty())
-    return streamInference(model, prompt, requestId, endpoint, format, timeoutSeconds, images, audioClips, logId, configSnapshot, prefs, schemaInjectionProviders, schemaInjectionMessages)
+    return streamInference(model, prompt, requestId, endpoint, format, timeoutSeconds, images, audioClips, logId, configSnapshot, prefs, schemaInjectionProviders, schemaInjectionMessages, suppressPerModelSystem)
   }
 
   // ── Streaming inference: /v1/completions ───────────────────────────────
@@ -932,6 +937,7 @@ class InferenceRunner(
     prefs: RequestPrefsSnapshot? = null,
     schemaInjectionProviders: List<com.google.ai.edge.litertlm.ToolProvider> = emptyList(),
     schemaInjectionMessages: List<com.google.ai.edge.litertlm.Message> = emptyList(),
+    suppressPerModelSystem: Boolean = false,
   ): HttpResponse {
     val streamStartMs = SystemClock.elapsedRealtime()
     ServerMetrics.addTokensIn(estimateTokensLong(prompt))
@@ -995,7 +1001,7 @@ class InferenceRunner(
             model,
             supportImage = supportImage,
             supportAudio = supportAudio,
-            systemInstruction = buildSystemInstruction(model.prefsKey),
+            systemInstruction = if (suppressPerModelSystem) null else buildSystemInstruction(model.prefsKey),
             tools = schemaInjectionProviders,
             initialMessages = schemaInjectionMessages,
           )

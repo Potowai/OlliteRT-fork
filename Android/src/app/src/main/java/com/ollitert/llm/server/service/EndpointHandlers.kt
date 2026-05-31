@@ -110,12 +110,32 @@ class EndpointHandlers(
     logId: String? = null,
     prefs: RequestPrefsSnapshot = RequestPrefsSnapshot(),
   ): HttpResponse {
-    val requestId = nextRequestId()
     captureBody(body)
     val req = try { json.decodeFromString<ChatRequest>(body) }
       catch (e: SerializationException) { return httpBadRequest("Invalid JSON: ${e.message}") }
+    return runChatCompletion(req, captureResponse, logId, prefs, suppressPerModelSystem = false, bodyLength = body.length, endpoint = "/v1/chat/completions")
+  }
+
+  /**
+   * Core chat-completion pipeline. Extracted so the Anthropic /v1/messages handler can
+   * convert its request to ChatRequest and reuse the entire prompt-compaction →
+   * inference → response-shaping flow without duplicating logic.
+   *
+   * Body capture is the caller's responsibility — the captured string is endpoint-specific
+   * (raw OAI body for /v1/chat/completions, raw Anthropic body for /v1/messages).
+   */
+  suspend fun runChatCompletion(
+    req: ChatRequest,
+    captureResponse: (String) -> Unit = {},
+    logId: String? = null,
+    prefs: RequestPrefsSnapshot = RequestPrefsSnapshot(),
+    suppressPerModelSystem: Boolean = false,
+    bodyLength: Int = 0,
+    endpoint: String = "/v1/chat/completions",
+  ): HttpResponse {
+    val requestId = nextRequestId()
     validateNParam(req.n)?.let { (param, msg) ->
-      logEvent("request_rejected id=$requestId endpoint=/v1/chat/completions param=$param value=${req.n}")
+      logEvent("request_rejected id=$requestId endpoint=$endpoint param=$param value=${req.n}")
       return httpBadRequest(msg)
     }
     val toolChoiceStr = PromptBuilder.resolveToolChoice(req.tool_choice)
@@ -158,7 +178,7 @@ class EndpointHandlers(
       interleaveImagePlaceholders = hasImageParts,
     )
 
-    logCompactionResult(compactionResult, requestId, "/v1/chat/completions", logId, maxContext, logEvent, compactionLogUpdater(logId))
+    logCompactionResult(compactionResult, requestId, endpoint, logId, maxContext, logEvent, compactionLogUpdater(logId))
 
     // Apply response_format JSON mode prompt injection
     var prompt = if (useSchemaInjection) {
@@ -177,10 +197,10 @@ class EndpointHandlers(
       modelLifecycle.decodeAudioData(audioData)
     } else emptyList()
 
-    logEvent("request_start id=$requestId endpoint=/v1/chat/completions bodyLength=${body.length} promptChars=${prompt.length} images=${images.size} audio=${audioClips.size} model=$requestedId resolved=${model.name}")
+    logEvent("request_start id=$requestId endpoint=$endpoint bodyLength=$bodyLength promptChars=${prompt.length} images=${images.size} audio=${audioClips.size} model=$requestedId resolved=${model.name}")
 
     if (prompt.isBlank() && images.isEmpty() && audioClips.isEmpty()) {
-      logEvent("request_empty id=$requestId endpoint=/v1/chat/completions")
+      logEvent("request_empty id=$requestId endpoint=$endpoint")
       return emptyChatResponse(model.name, stream = req.stream == true, logId = logId)
     }
 
@@ -191,11 +211,11 @@ class EndpointHandlers(
 
     val stopSeqs = req.stop.ifEmpty { null }
     return if (req.stream == true) {
-      inferenceRunner.streamChatLlm(model, prompt, requestId, "/v1/chat/completions", timeoutSeconds = ServerPrefs.getTimeoutChatCompletions(context), images = images, audioClips = audioClips, logId = logId, includeUsage = includeUsage, stopSequences = stopSeqs, tools = if (hasTools) tools else null, configSnapshot = sampler, json = json, prefs = prefs, schemaInjectionProviders = schemaInjectionProviders, schemaInjectionMessages = schemaInjectionMessages)
+      inferenceRunner.streamChatLlm(model, prompt, requestId, endpoint, timeoutSeconds = ServerPrefs.getTimeoutChatCompletions(context), images = images, audioClips = audioClips, logId = logId, includeUsage = includeUsage, stopSequences = stopSeqs, tools = if (hasTools) tools else null, configSnapshot = sampler, json = json, prefs = prefs, schemaInjectionProviders = schemaInjectionProviders, schemaInjectionMessages = schemaInjectionMessages, suppressPerModelSystem = suppressPerModelSystem)
     } else {
       ServerMetrics.onInferenceStarted()
       var schemaInjectionToolCalls: List<ToolCall> = emptyList()
-      val (rawText, llmError) = inferenceRunner.runLlm(model, prompt, requestId, "/v1/chat/completions", timeoutSeconds = ServerPrefs.getTimeoutChatCompletions(context), images = images, audioClips = audioClips, logId = logId, configSnapshot = sampler, prefs = prefs, schemaInjectionProviders = schemaInjectionProviders, schemaInjectionMessages = schemaInjectionMessages, onNativeToolCalls = if (useSchemaInjection) { calls -> schemaInjectionToolCalls = calls } else null)
+      val (rawText, llmError) = inferenceRunner.runLlm(model, prompt, requestId, endpoint, timeoutSeconds = ServerPrefs.getTimeoutChatCompletions(context), images = images, audioClips = audioClips, logId = logId, configSnapshot = sampler, prefs = prefs, schemaInjectionProviders = schemaInjectionProviders, schemaInjectionMessages = schemaInjectionMessages, onNativeToolCalls = if (useSchemaInjection) { calls -> schemaInjectionToolCalls = calls } else null, suppressPerModelSystem = suppressPerModelSystem)
       ServerMetrics.onInferenceCompleted()
       if (rawText == null) return handleBlockingInferenceError(llmError, logId)
       val (text, _) = InferenceRunner.applyStopSequences(rawText, stopSeqs)
@@ -212,7 +232,7 @@ class EndpointHandlers(
         if (toolCalls.isNotEmpty()) {
           if (logId != null) RequestLogStore.update(logId) { it.copy(hasToolCalls = true) }
           val source = if (useSchemaInjection && schemaInjectionToolCalls.isNotEmpty()) "schema_injection" else "text_parse"
-          logEvent("request_tool_calls id=$requestId endpoint=/v1/chat/completions tools=${toolCalls.joinToString(",") { it.function.name }} count=${toolCalls.size} source=$source")
+          logEvent("request_tool_calls id=$requestId endpoint=$endpoint tools=${toolCalls.joinToString(",") { it.function.name }} count=${toolCalls.size} source=$source")
           val completionTokens = estimateTokens(toolCalls.joinToString("") { it.function.arguments })
           val timings = PayloadBuilders.buildTimings(promptTokens, completionTokens)
           val responseJson = json.encodeToString(PayloadBuilders.chatResponseWithToolCalls(model.name, toolCalls, promptLen = prompt.length, timings = timings))
