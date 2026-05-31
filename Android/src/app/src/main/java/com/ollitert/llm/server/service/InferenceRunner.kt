@@ -668,6 +668,10 @@ class InferenceRunner(
     override val stopSequences: List<String>?,
     private val tools: List<ToolSpec>?,
     private val hasSchemaInjection: Boolean,
+    // Verbose-debug only: when true, log SSE event counter + first-event timing so
+    // disconnect-vs-stall cases can be distinguished post-hoc. Cheap (one Log.i per
+    // event), but still gated to avoid spamming logcat in normal use.
+    private val verboseDebug: Boolean = false,
   ) : StreamingFormat {
     private val msgId = "msg_${java.util.UUID.randomUUID().toString().replace("-", "").take(24)}"
     override val sourceTag = "executeStreaming_messages"
@@ -679,11 +683,25 @@ class InferenceRunner(
     private var currentBlockOpen = false
     private var currentBlockKind: String? = null  // "thinking" | "text" | "tool_use"
 
+    private var sseEventCount = 0
+    private var firstEmitNanos = 0L
+    private val createdNanos = System.nanoTime()
+
+    private suspend fun emitSse(writer: SseWriter, eventName: String, payload: String) {
+      writer.emit(ResponseRenderer.emitSseEvent(eventName, payload))
+      sseEventCount += 1
+      if (verboseDebug && firstEmitNanos == 0L) {
+        firstEmitNanos = System.nanoTime()
+        val ms = (firstEmitNanos - createdNanos) / 1_000_000
+        Log.i(TAG, "ANTHROPIC_SSE first_emit msgId=$msgId firstEventMs=$ms event=$eventName")
+      }
+    }
+
     override suspend fun emitHeader(writer: SseWriter) {
       val escapedModel = BridgeUtils.escapeSseText(requestModelId)
       val payload =
         """{"type":"message_start","message":{"id":"$msgId","type":"message","role":"assistant","model":"$escapedModel","content":[],"stop_reason":null,"stop_sequence":null,"usage":{"input_tokens":0,"output_tokens":0}}}"""
-      writer.emit(ResponseRenderer.emitSseEvent("message_start", payload))
+      emitSse(writer, "message_start", payload)
     }
 
     private suspend fun openBlockIfNeeded(writer: SseWriter, kind: String) {
@@ -698,13 +716,13 @@ class InferenceRunner(
         else -> """{"type":"$kind"}"""
       }
       val payload = """{"type":"content_block_start","index":$currentBlockIndex,"content_block":$blockJson}"""
-      writer.emit(ResponseRenderer.emitSseEvent("content_block_start", payload))
+      emitSse(writer, "content_block_start", payload)
     }
 
     private suspend fun closeCurrentBlock(writer: SseWriter) {
       if (!currentBlockOpen) return
       val payload = """{"type":"content_block_stop","index":$currentBlockIndex}"""
-      writer.emit(ResponseRenderer.emitSseEvent("content_block_stop", payload))
+      emitSse(writer, "content_block_stop", payload)
       currentBlockOpen = false
       currentBlockKind = null
     }
@@ -717,7 +735,7 @@ class InferenceRunner(
       openBlockIfNeeded(writer, "thinking")
       val esc = BridgeUtils.escapeSseText(cleaned)
       val payload = """{"type":"content_block_delta","index":$currentBlockIndex,"delta":{"type":"thinking_delta","thinking":"$esc"}}"""
-      writer.emit(ResponseRenderer.emitSseEvent("content_block_delta", payload))
+      emitSse(writer, "content_block_delta", payload)
     }
 
     override suspend fun emitContentDelta(writer: SseWriter, text: String) {
@@ -727,7 +745,7 @@ class InferenceRunner(
       openBlockIfNeeded(writer, "text")
       val esc = BridgeUtils.escapeSseText(cleaned)
       val payload = """{"type":"content_block_delta","index":$currentBlockIndex,"delta":{"type":"text_delta","text":"$esc"}}"""
-      writer.emit(ResponseRenderer.emitSseEvent("content_block_delta", payload))
+      emitSse(writer, "content_block_delta", payload)
     }
 
     override suspend fun emitThinkingClose(writer: SseWriter) {
@@ -740,8 +758,12 @@ class InferenceRunner(
       if (!headerWritten) emitHeader(writer)
       if (currentBlockOpen) closeCurrentBlock(writer)
       val delta = """{"type":"message_delta","delta":{"stop_reason":"end_turn","stop_sequence":null},"usage":{"input_tokens":0,"output_tokens":0}}"""
-      writer.emit(ResponseRenderer.emitSseEvent("message_delta", delta))
-      writer.emit(ResponseRenderer.emitSseEvent("message_stop", """{"type":"message_stop"}"""))
+      emitSse(writer, "message_delta", delta)
+      emitSse(writer, "message_stop", """{"type":"message_stop"}""")
+      if (verboseDebug) {
+        val totalMs = (System.nanoTime() - createdNanos) / 1_000_000
+        Log.i(TAG, "ANTHROPIC_SSE cancellation msgId=$msgId totalEvents=$sseEventCount totalMs=$totalMs")
+      }
       writer.finish()
     }
 
@@ -775,7 +797,11 @@ class InferenceRunner(
       // enrichedMessage already contains the suggestion appended by enrichLlmError
       // ("$error — $suggestion"), so do NOT append it again here.
       val payload = """{"type":"error","error":{"type":"${BridgeUtils.escapeSseText(anthropicErrorType)}","message":"${BridgeUtils.escapeSseText(enrichedMessage)}"}}"""
-      writer.emit(ResponseRenderer.emitSseEvent("error", payload))
+      emitSse(writer, "error", payload)
+      if (verboseDebug) {
+        val totalMs = (System.nanoTime() - createdNanos) / 1_000_000
+        Log.i(TAG, "ANTHROPIC_SSE error msgId=$msgId errorType=$anthropicErrorType totalEvents=$sseEventCount totalMs=$totalMs")
+      }
     }
 
     override fun buildLogErrorJson(enrichedMessage: String, suggestion: String?, kind: ErrorKind, oaiErrorJson: String): String {
@@ -823,14 +849,14 @@ class InferenceRunner(
           openBlockIfNeeded(writer, "thinking")
           val esc = BridgeUtils.escapeSseText(fullThinking)
           val payload = """{"type":"content_block_delta","index":$currentBlockIndex,"delta":{"type":"thinking_delta","thinking":"$esc"}}"""
-          writer.emit(ResponseRenderer.emitSseEvent("content_block_delta", payload))
+          emitSse(writer, "content_block_delta", payload)
           closeCurrentBlock(writer)
         }
         if (fullText.isNotEmpty()) {
           openBlockIfNeeded(writer, "text")
           val esc = BridgeUtils.escapeSseText(fullText)
           val payload = """{"type":"content_block_delta","index":$currentBlockIndex,"delta":{"type":"text_delta","text":"$esc"}}"""
-          writer.emit(ResponseRenderer.emitSseEvent("content_block_delta", payload))
+          emitSse(writer, "content_block_delta", payload)
           closeCurrentBlock(writer)
         }
       } else {
@@ -859,10 +885,10 @@ class InferenceRunner(
             append("""",""")
             append(""""input":{}}}""")
           }
-          writer.emit(ResponseRenderer.emitSseEvent("content_block_start", startPayload))
+          emitSse(writer, "content_block_start", startPayload)
           val argsEsc = BridgeUtils.escapeSseText(call.function.arguments.ifBlank { "{}" })
           val deltaPayload = """{"type":"content_block_delta","index":$currentBlockIndex,"delta":{"type":"input_json_delta","partial_json":"$argsEsc"}}"""
-          writer.emit(ResponseRenderer.emitSseEvent("content_block_delta", deltaPayload))
+          emitSse(writer, "content_block_delta", deltaPayload)
           closeCurrentBlock(writer)
         }
       }
@@ -878,8 +904,12 @@ class InferenceRunner(
         "\"" + BridgeUtils.escapeSseText(matchedStopSequence) + "\""
       } else "null"
       val deltaPayload = """{"type":"message_delta","delta":{"stop_reason":"$stopReason","stop_sequence":$stopSequenceField},"usage":{"input_tokens":$promptTokens,"output_tokens":$completionTokens}}"""
-      writer.emit(ResponseRenderer.emitSseEvent("message_delta", deltaPayload))
-      writer.emit(ResponseRenderer.emitSseEvent("message_stop", """{"type":"message_stop"}"""))
+      emitSse(writer, "message_delta", deltaPayload)
+      emitSse(writer, "message_stop", """{"type":"message_stop"}""")
+      if (verboseDebug) {
+        val totalMs = (System.nanoTime() - createdNanos) / 1_000_000
+        Log.i(TAG, "ANTHROPIC_SSE complete msgId=$msgId stopReason=$stopReason promptTokens=$promptTokens completionTokens=$completionTokens totalEvents=$sseEventCount totalMs=$totalMs")
+      }
       writer.finish()
       return parsedToolCalls
     }
@@ -1315,6 +1345,7 @@ class InferenceRunner(
       stopSequences = stopSequences,
       tools = tools,
       hasSchemaInjection = schemaInjectionProviders.isNotEmpty(),
+      verboseDebug = prefs?.verboseDebug ?: ServerPrefs.isVerboseDebugEnabled(context),
     )
     return streamInference(
       model, prompt, requestId, endpoint, format, timeoutSeconds, images, audioClips,
@@ -1453,6 +1484,10 @@ class InferenceRunner(
           for (event in channel) {
             // Check for client disconnect (Ktor closed the writer)
             if (writer.isCancelled) {
+              val elapsedMs = state.elapsedMs()
+              Log.i(TAG, "STREAM_DISCONNECT requestId=$requestId endpoint=$endpoint elapsedMs=$elapsedMs " +
+                "firstTokenMs=${state.firstTokenMs} headerWritten=${state.headerWritten} " +
+                "fullText.len=${state.fullText.length} fullThinking.len=${state.fullThinking.length}")
               ServerLlmModelHelper.stopResponse(model)
               state.markCompleted()
               state.logCancellation()

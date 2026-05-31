@@ -398,6 +398,18 @@ class KtorServer(
     post("/v1/messages") {
       if (!requireAuth(call)) return@post
       withRequestLogging(call) { body, captureBody, captureResponse, logId, _, prefs ->
+        if (prefs.verboseDebug) {
+          val headers = call.request.headers
+          val redacted = RequestLogStore.redactSensitiveHeaders(
+            headers.names().associateWith { headers[it].orEmpty() }
+          )
+          val ua = redacted["User-Agent"] ?: redacted["user-agent"] ?: ""
+          val av = redacted["anthropic-version"] ?: ""
+          val accept = redacted["Accept"] ?: redacted["accept"] ?: ""
+          val cl = redacted["Content-Length"] ?: redacted["content-length"] ?: ""
+          val hasApiKey = (redacted["x-api-key"] != null || redacted["X-Api-Key"] != null).toString()
+          Log.i(TAG, "ANTHROPIC_REQ headers: ua=\"$ua\" anthropic-version=\"$av\" accept=\"$accept\" content-length=$cl x-api-key=$hasApiKey body_chars=${body.length} body_head=\"${body.take(200).replace("\n", "\\n")}\"")
+        }
         anthropicEndpointHandlers.handleMessages(body, captureBody, captureResponse, logId, prefs)
       }
     }
