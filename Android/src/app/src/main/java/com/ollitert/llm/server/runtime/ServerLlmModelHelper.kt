@@ -46,6 +46,7 @@ import com.ollitert.llm.server.data.DEFAULT_TOPK
 import com.ollitert.llm.server.data.DEFAULT_TOPP
 import com.ollitert.llm.server.data.DEFAULT_VISION_ACCELERATOR
 import com.ollitert.llm.server.data.LOG_ERROR_PREVIEW_LONG_CHARS
+import com.ollitert.llm.server.data.ServerPrefs
 import com.ollitert.llm.server.data.LOG_ERROR_PREVIEW_SHORT_CHARS
 import com.ollitert.llm.server.data.MIN_STORAGE_FOR_MODEL_INIT_BYTES
 import com.ollitert.llm.server.data.Model
@@ -113,13 +114,18 @@ object GpuAvailability {
     val accessible = javaLoadSuccess
 
     Log.i(TAG, "OpenCL probe result: accessible=$accessible — $probeResults")
-    RequestLogStore.addEvent(
-      "OpenCL probe: accessible=$accessible, " +
-        "javaLoad=${if (javaLoadSuccess) "OK" else "FAIL"}, " +
-        "found=${foundPaths.map { it.removePrefix("/system").removePrefix("/") }}",
-      level = if (accessible) LogLevel.DEBUG else LogLevel.WARNING,
-      category = EventCategory.MODEL,
-    )
+    // Only surface in user-facing Logs tab when something is wrong (probe failed).
+    // The accessible-OK branch is just a diagnostic — keep it in logcat only so the
+    // Logs tab doesn't fill with "OpenCL probe: accessible=true" on every fresh install.
+    if (!accessible) {
+      RequestLogStore.addEvent(
+        "OpenCL probe: accessible=$accessible, " +
+          "javaLoad=${if (javaLoadSuccess) "OK" else "FAIL"}, " +
+          "found=${foundPaths.map { it.removePrefix("/system").removePrefix("/") }}",
+        level = LogLevel.WARNING,
+        category = EventCategory.MODEL,
+      )
+    }
 
     accessible
   }
@@ -168,13 +174,15 @@ object ServerLlmModelHelper {
 
     Log.i(TAG, "Backend selection: requested=$accelerator, openCL=$gpuAccessible, " +
       "cpuFallbackAvailable=$canFallbackToCpu, accelerators=${model.accelerators}")
-    RequestLogStore.addEvent(
-      "Backend: requested=$accelerator, OpenCL=${if (gpuAccessible) "OK" else "unavailable"}, " +
-        "accelerators=${model.accelerators.map { it.label }}",
-      level = LogLevel.DEBUG,
-      modelName = model.name,
-      category = EventCategory.MODEL,
-    )
+    if (ServerPrefs.isVerboseDebugEnabled(context)) {
+      RequestLogStore.addEvent(
+        "Backend: requested=$accelerator, OpenCL=${if (gpuAccessible) "OK" else "unavailable"}, " +
+          "accelerators=${model.accelerators.map { it.label }}",
+        level = LogLevel.DEBUG,
+        modelName = model.name,
+        category = EventCategory.MODEL,
+      )
+    }
 
     val effectiveAccelerator = if (accelerator == Accelerator.GPU.label && !gpuAccessible && canFallbackToCpu) {
       Log.w(TAG, "GPU requested but OpenCL not accessible — falling back to CPU")
@@ -214,12 +222,14 @@ object ServerLlmModelHelper {
       }
     Log.i(TAG, "Preferred backend: ${preferredBackend::class.simpleName} " +
       "(requested: $accelerator, effective: $effectiveAccelerator)")
-    RequestLogStore.addEvent(
-      "Using backend: ${preferredBackend::class.simpleName} (effective=$effectiveAccelerator)",
-      level = LogLevel.DEBUG,
-      modelName = model.name,
-      category = EventCategory.MODEL,
-    )
+    if (ServerPrefs.isVerboseDebugEnabled(context)) {
+      RequestLogStore.addEvent(
+        "Using backend: ${preferredBackend::class.simpleName} (effective=$effectiveAccelerator)",
+        level = LogLevel.DEBUG,
+        modelName = model.name,
+        category = EventCategory.MODEL,
+      )
+    }
 
     val modelPath = model.getPath(context = context)
 
