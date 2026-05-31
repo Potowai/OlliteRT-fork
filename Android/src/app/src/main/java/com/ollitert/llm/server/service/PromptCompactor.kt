@@ -34,7 +34,7 @@ object PromptCompactor {
    * Result of a compaction attempt.
    * @param prompt The (possibly compacted) prompt string ready for inference.
    * @param compacted Whether any compaction strategy was applied.
-   * @param strategies Short tags for strategies applied, e.g. ["truncated:-4 msgs", "tools:compacted"].
+   * @param strategies Short tags for strategies applied, e.g. ["truncated:-4 msgs", "trimmed"].
    */
   data class CompactionResult(
     val prompt: String,

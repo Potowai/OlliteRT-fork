@@ -155,7 +155,7 @@ class EndpointHandlersHelpersTest {
   fun logCompactionResult_multipleStrategies_joinedWithComma() {
     val logged = mutableListOf<String>()
     logCompactionResult(
-      result = PromptCompactor.CompactionResult(prompt = "x", compacted = true, strategies = listOf("truncated:-3 msgs", "tools:compacted", "trimmed")),
+      result = PromptCompactor.CompactionResult(prompt = "x", compacted = true, strategies = listOf("truncated:-3 msgs", "trimmed")),
       requestId = "r6",
       endpoint = "/v1/chat/completions",
       logId = null,
@@ -163,7 +163,7 @@ class EndpointHandlersHelpersTest {
       logEvent = { logged.add(it) },
       updateLog = { _, _ -> },
     )
-    assertTrue(logged[0].contains("strategies=[truncated:-3 msgs, tools:compacted, trimmed]"))
+    assertTrue(logged[0].contains("strategies=[truncated:-3 msgs, trimmed]"))
   }
 
   // ── resolveSamplerOverrides ───────────────────────────────────────────

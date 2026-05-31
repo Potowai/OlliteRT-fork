@@ -44,7 +44,7 @@ class RequestLogEntityTest {
     isPending = false,
     isThinking = true,
     isCompacted = true,
-    compactionDetails = "tools:compacted, truncated:-2 msgs",
+    compactionDetails = "truncated:-2 msgs, trimmed",
     compactedPrompt = "compacted prompt text",
     isCancelled = false,
     cancelledByUser = false,
@@ -218,7 +218,7 @@ class RequestLogEntityTest {
     assertTrue("extras should contain requestBody", entity.extras.contains("messages"))
     assertTrue("extras should contain isThinking", entity.extras.contains("isThinking"))
     assertTrue("extras should contain isCompacted", entity.extras.contains("isCompacted"))
-    assertTrue("extras should contain compactionDetails", entity.extras.contains("tools:compacted"))
+    assertTrue("extras should contain compactionDetails", entity.extras.contains("trimmed"))
   }
 
   @Test

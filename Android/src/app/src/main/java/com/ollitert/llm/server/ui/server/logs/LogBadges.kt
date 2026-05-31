@@ -126,32 +126,16 @@ internal fun FooterDot() {
 /**
  * Parses compactionDetails string (comma-separated strategy tags from [PromptCompactor])
  * into short badge labels with colors. Strategy tag format:
- *   "tools:compacted" → "Compacted: Tools"
- *   "tools:removed"   → "Compacted: Tools removed"
  *   "truncated:-4 msgs" → "Truncated: -4 msgs"
- *   "trimmed"         → "Trimmed"
- */
-/**
- * @param short When true, produces short labels for the footer (e.g. "Compacted" instead of
- *   "Compacted: Tools"). The detailed variant is used in the Compacted Prompt section header.
+ *   "trimmed"           → "Trimmed"
+ *
+ * @param short When true, produces short labels for the footer (e.g. "Truncated" instead of
+ *   "Truncated: -4 msgs"). The detailed variant is used in the Compacted Prompt section header.
  */
 internal fun parseCompactionBadges(details: String?, short: Boolean = false): List<Pair<String, Color>> {
   if (details.isNullOrBlank()) return emptyList()
   return details.split(", ").mapNotNull { tag ->
     when {
-      tag.startsWith("tools:") -> {
-        if (short) {
-          "Compacted" to WarningColor
-        } else {
-          val suffix = tag.removePrefix("tools:")
-          val label = when (suffix) {
-            "compacted" -> "Compacted: Tools"
-            "removed" -> "Compacted: Tools removed"
-            else -> "Compacted: Tools"
-          }
-          label to WarningColor
-        }
-      }
       tag.startsWith("truncated:") -> {
         if (short) {
           "Truncated" to TruncatedColor
