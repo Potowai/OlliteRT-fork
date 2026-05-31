@@ -121,6 +121,31 @@ object RequestLogStore {
 
   private val idCounter = AtomicLong(0)
 
+  /**
+   * Header names whose values must never be persisted in plain text — they carry
+   * authentication material. Compared case-insensitively at the call site.
+   */
+  private val REDACTED_HEADERS = setOf(
+    "authorization",
+    "x-api-key",
+    "cookie",
+    "proxy-authorization",
+  )
+
+  /**
+   * Redact authentication headers before they are stored or rendered. Returns a copy
+   * of the input map with sensitive values replaced by `<redacted>`. Header names
+   * are matched case-insensitively (HTTP header names are case-insensitive per RFC 7230).
+   *
+   * Today no header dump is captured, but the Anthropic endpoint introduces
+   * `x-api-key` and `anthropic-version` — any future code path that records request
+   * headers should pipe them through this helper first.
+   */
+  fun redactSensitiveHeaders(headers: Map<String, String>): Map<String, String> =
+    headers.mapValues { (name, value) ->
+      if (REDACTED_HEADERS.contains(name.lowercase())) "<redacted>" else value
+    }
+
   /** Callback for the persistence layer to observe add/update/clear events. */
   interface PersistenceCallback {
     /** A new entry was added (create). */

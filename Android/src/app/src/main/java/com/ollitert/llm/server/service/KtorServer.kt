@@ -232,6 +232,9 @@ class KtorServer(
     if (expected.isBlank()) return true // Auth disabled
     val header = call.request.headers["Authorization"] ?: ""
     if (BridgeUtils.isBearerAuthorized(expected, header)) return true
+    // Anthropic SDKs and Claude Code authenticate via x-api-key with no Bearer prefix.
+    val apiKey = call.request.headers["x-api-key"] ?: ""
+    if (BridgeUtils.isApiKeyAuthorized(expected, apiKey)) return true
     call.respondHttpResponse(httpUnauthorized("unauthorized"))
     return false
   }

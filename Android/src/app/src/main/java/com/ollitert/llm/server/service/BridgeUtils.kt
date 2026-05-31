@@ -38,6 +38,20 @@ object BridgeUtils {
     return java.security.MessageDigest.isEqual(expected, actual)
   }
 
+  /**
+   * Verify the value of an `x-api-key` header against the configured token.
+   *
+   * Distinct from [isBearerAuthorized] because Anthropic clients (Claude Code,
+   * the official SDKs) send the raw token in `x-api-key` with no `Bearer` prefix.
+   * Mixing in a `Bearer` literal here would silently break every Anthropic request.
+   */
+  fun isApiKeyAuthorized(expectedToken: String, apiKeyHeader: String?): Boolean {
+    if (expectedToken.isBlank()) return true
+    val expected = expectedToken.toByteArray(Charsets.UTF_8)
+    val actual = (apiKeyHeader ?: "").toByteArray(Charsets.UTF_8)
+    return java.security.MessageDigest.isEqual(expected, actual)
+  }
+
   fun escapeSseText(value: String): String = buildString(value.length) {
     for (ch in value) {
       when (ch) {
