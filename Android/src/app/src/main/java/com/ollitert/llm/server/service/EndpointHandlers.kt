@@ -229,7 +229,11 @@ class EndpointHandlers(
       logEvent("request_incremental id=$requestId endpoint=$endpoint decision=${incrementalDecision.kind} reason=${incrementalDecision.reason}")
     }
 
-    val includeUsage = req.stream_options?.include_usage == true
+    // Always emit usage chunk when the user has enabled the Metrics setting so clients
+    // like Open WebUI / llama.cpp that never set stream_options.include_usage still see
+    // tokens/sec stats.
+    val includeUsage = req.stream_options?.include_usage == true ||
+      ServerPrefs.isForceStreamUsage(context)
     val effectiveMaxTokens = req.max_completion_tokens ?: req.max_tokens
 
     val sampler = resolveSamplerOverrides(model, prefs, req.temperature, req.top_p, req.top_k, effectiveMaxTokens, logId)
@@ -372,7 +376,8 @@ class EndpointHandlers(
 
     val sampler = resolveSamplerOverrides(model, prefs, req.temperature, req.top_p, topK = null, req.max_tokens, logId)
 
-    val includeUsage = req.stream_options?.include_usage == true
+    val includeUsage = req.stream_options?.include_usage == true ||
+      ServerPrefs.isForceStreamUsage(context)
     val stopSeqs = stopSequences?.ifEmpty { null }
 
     return if (req.stream == true) {

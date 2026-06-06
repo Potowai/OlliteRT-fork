@@ -386,6 +386,17 @@ val SHOW_ADVANCED_METRICS = SettingDef.Toggle(
   write = { ctx, v -> ServerPrefs.setShowAdvancedMetrics(ctx, v) },
 )
 
+val FORCE_STREAM_USAGE = SettingDef.Toggle(
+  key = "force_stream_usage",
+  labelRes = R.string.settings_force_stream_usage,
+  descriptionRes = R.string.settings_force_stream_usage_desc,
+  card = CardId.METRICS,
+  default = true,
+  prefsKey = "force_stream_usage",
+  read = { ServerPrefs.isForceStreamUsage(it) },
+  write = { ctx, v -> ServerPrefs.setForceStreamUsage(ctx, v) },
+)
+
 // ─── Log Persistence Card ─────────────────────────────────────────
 
 val LOG_PERSISTENCE_ENABLED = SettingDef.Toggle(
@@ -835,7 +846,7 @@ val allSettingDefs: List<SettingDef> = listOf(
   // Context Management
   TRUNCATE_HISTORY, TRIM_PROMPT,
   // Metrics
-  SHOW_REQUEST_TYPES, SHOW_ADVANCED_METRICS, NOTIF_REQUEST_COUNT,
+  SHOW_REQUEST_TYPES, SHOW_ADVANCED_METRICS, NOTIF_REQUEST_COUNT, FORCE_STREAM_USAGE,
   // Log Persistence
   LOG_PERSISTENCE_ENABLED, LOG_MAX_ENTRIES, LOG_AUTO_DELETE, CLEAR_ALL_LOGS,
   // Home Assistant
@@ -913,7 +924,7 @@ val allCardDefs: List<CardDef> = listOf(
     id = CardId.METRICS,
     titleRes = R.string.settings_card_metrics,
     icon = CardIcon.Vector(Icons.Outlined.BarChart),
-    settings = listOf(SHOW_REQUEST_TYPES, SHOW_ADVANCED_METRICS, NOTIF_REQUEST_COUNT),
+    settings = listOf(SHOW_REQUEST_TYPES, SHOW_ADVANCED_METRICS, NOTIF_REQUEST_COUNT, FORCE_STREAM_USAGE),
   ),
   CardDef(
     id = CardId.LOG_PERSISTENCE,

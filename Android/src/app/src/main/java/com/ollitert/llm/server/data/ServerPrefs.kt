@@ -69,6 +69,7 @@ private const val KEY_STREAM_LOGS_PREVIEW = "stream_logs_preview"
 private const val KEY_NOTIF_SHOW_REQUEST_COUNT = "notif_show_request_count"
 private const val KEY_SHOW_REQUEST_TYPES = "show_request_types"
 private const val KEY_SHOW_ADVANCED_METRICS = "show_advanced_metrics"
+private const val KEY_FORCE_STREAM_USAGE = "force_stream_usage"
 private const val KEY_COMPACT_IMAGE_DATA = "compact_image_data"
 private const val DEFAULT_COMPACT_IMAGE_DATA = true
 private const val KEY_RESOLVE_CLIENT_HOSTNAMES = "resolve_client_hostnames"
@@ -271,6 +272,7 @@ object ServerPrefs {
   private val NOTIF_SHOW_REQUEST_COUNT = BoolPref(KEY_NOTIF_SHOW_REQUEST_COUNT, false)
   private val SHOW_REQUEST_TYPES = BoolPref(KEY_SHOW_REQUEST_TYPES, false)
   private val SHOW_ADVANCED_METRICS = BoolPref(KEY_SHOW_ADVANCED_METRICS, false)
+  private val FORCE_STREAM_USAGE = BoolPref(KEY_FORCE_STREAM_USAGE, true)
   private val COMPACT_IMAGE_DATA = BoolPref(KEY_COMPACT_IMAGE_DATA, DEFAULT_COMPACT_IMAGE_DATA)
   private val RESOLVE_CLIENT_HOSTNAMES = BoolPref(KEY_RESOLVE_CLIENT_HOSTNAMES, DEFAULT_RESOLVE_CLIENT_HOSTNAMES)
   private val HIDE_HEALTH_LOGS = BoolPref(KEY_HIDE_HEALTH_LOGS, DEFAULT_HIDE_HEALTH_LOGS)
@@ -455,6 +457,9 @@ object ServerPrefs {
 
   fun isShowAdvancedMetrics(context: Context): Boolean = get(context, SHOW_ADVANCED_METRICS)
   fun setShowAdvancedMetrics(context: Context, enabled: Boolean) = set(context, SHOW_ADVANCED_METRICS, enabled)
+
+  fun isForceStreamUsage(context: Context): Boolean = get(context, FORCE_STREAM_USAGE)
+  fun setForceStreamUsage(context: Context, enabled: Boolean) = set(context, FORCE_STREAM_USAGE, enabled)
 
   fun isCompactImageData(context: Context): Boolean = get(context, COMPACT_IMAGE_DATA)
   fun setCompactImageData(context: Context, enabled: Boolean) = set(context, COMPACT_IMAGE_DATA, enabled)

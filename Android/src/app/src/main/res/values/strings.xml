@@ -359,6 +359,8 @@
   <string name="settings_show_request_types_desc" translatable="false">Show text, vision, and audio request counts on the Status screen</string>
   <string name="settings_show_advanced_metrics" translatable="false">Show Advanced Metrics</string>
   <string name="settings_show_advanced_metrics_desc" translatable="false">Display prefill speed, inter-token latency, latency stats, and context utilization on the Status screen</string>
+  <string name="settings_force_stream_usage" translatable="false">Always Send Usage in Streaming</string>
+  <string name="settings_force_stream_usage_desc" translatable="false">Emit token counts and inference timings on every streaming response, even when the client does not set stream_options.include_usage. Required for Open WebUI, llama.cpp, and other clients to display per-message tokens/sec stats</string>
 
   <!-- Settings: Log Persistence card -->
   <string name="settings_card_log_persistence" translatable="false">Log Persistence</string>
