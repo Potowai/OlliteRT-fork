@@ -113,8 +113,8 @@
   <string name="llm_http_channel_name" translatable="false">OlliteRT Server</string>
 
   <!-- Dialog titles and body text -->
-  <string name="dialog_clear_logs_title">Clear All Logs</string>
-  <string name="dialog_clear_logs_body">This will permanently delete all logs — both the current session and the database. This cannot be undone.</string>
+  <string name="dialog_clear_logs_title">Delete All Activity Log Entries</string>
+  <string name="dialog_clear_logs_body">This will permanently delete every Logs tab entry — both the current session and the on-device database. Verbose/debug logging and adb logcat output are not affected. This cannot be undone.</string>
   <string name="button_clear">Clear</string>
   <string name="dialog_reduce_log_limit_title">Reduce Log Limit</string>
   <string name="dialog_reduce_log_limit_body">You currently have %1$d logs. Reducing the limit to %2$d will remove the %3$d oldest entries after saving.</string>
@@ -238,7 +238,7 @@
   <string name="toast_settings_saved_restart_manual">Settings saved. Restart the server manually for changes to take effect.</string>
   <string name="toast_server_restarting">Server restarting with updated settings</string>
   <string name="toast_settings_reset">All settings reset to defaults</string>
-  <string name="toast_logs_cleared">All logs cleared</string>
+  <string name="toast_logs_cleared">Activity log entries deleted</string>
   <string name="toast_token_cleared">Token cleared</string>
   <string name="toast_token_regenerated">Token regenerated — save to apply</string>
   <string name="toast_settings_saved_reload_pending">Settings saved — model will reload after loading finishes</string>
@@ -362,16 +362,16 @@
   <string name="settings_force_stream_usage" translatable="false">Always Send Usage in Streaming</string>
   <string name="settings_force_stream_usage_desc" translatable="false">Emit token counts and inference timings on every streaming response, even when the client does not set stream_options.include_usage. Required for Open WebUI, llama.cpp, and other clients to display per-message tokens/sec stats</string>
 
-  <!-- Settings: Log Persistence card -->
-  <string name="settings_card_log_persistence" translatable="false">Log Persistence</string>
-  <string name="settings_persist_logs" translatable="false">Persist Logs to Database</string>
-  <string name="settings_persist_logs_desc" translatable="false">Save activity logs to a local database so they survive app restarts. Disabled by default</string>
-  <string name="settings_max_log_entries_label" translatable="false">Maximum Log Entries</string>
-  <string name="settings_max_log_entries_desc" translatable="false">Maximum entries kept in memory and in the database. Oldest entries are pruned when the limit is reached.\nSet to 0 for no limit (capped at 10,000 in memory)</string>
-  <string name="settings_auto_delete_label" translatable="false">Auto-Delete After</string>
-  <string name="settings_auto_delete_desc" translatable="false">Persisted logs older than this are automatically removed from the database. Does not affect the current session\'s in-memory logs.\nSet to 0 to disable</string>
-  <string name="settings_clear_all_logs_button" translatable="false">Clear All Logs</string>
-  <string name="settings_clear_all_logs_desc" translatable="false">Remove all logs from the database and current session</string>
+  <!-- Settings: Activity Log Storage card (controls the Logs tab entries — not verbose/debug logging or adb logcat) -->
+  <string name="settings_card_log_persistence" translatable="false">Activity Log Storage</string>
+  <string name="settings_persist_logs" translatable="false">Store Activity Log on Device</string>
+  <string name="settings_persist_logs_desc" translatable="false">Save the request and response activity shown on the Logs tab to a local database so it survives app restarts. Does not control verbose/debug logging or adb logcat output. Disabled by default</string>
+  <string name="settings_max_log_entries_label" translatable="false">Maximum Activity Log Entries</string>
+  <string name="settings_max_log_entries_desc" translatable="false">Maximum Logs tab entries kept in memory and in the database. Oldest entries are pruned when the limit is reached.\nSet to 0 for no limit (capped at 10,000 in memory)</string>
+  <string name="settings_auto_delete_label" translatable="false">Auto-Delete Activity Log After</string>
+  <string name="settings_auto_delete_desc" translatable="false">Stored Logs tab entries older than this are automatically removed from the on-device database. Does not affect the current session\'s in-memory entries or adb logcat output.\nSet to 0 to disable</string>
+  <string name="settings_clear_all_logs_button" translatable="false">Delete All Activity Log Entries</string>
+  <string name="settings_clear_all_logs_desc" translatable="false">Permanently remove every Logs tab entry from the on-device database and the current session. Does not affect verbose/debug logging or adb logcat</string>
 
   <!-- Settings: Home Assistant card -->
   <string name="settings_card_home_assistant" translatable="false">Home Assistant</string>
