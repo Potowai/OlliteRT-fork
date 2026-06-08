@@ -160,7 +160,7 @@
   <string name="dialog_unsupported_web_model_title">Unsupported model type</string>
   <string name="dialog_unsupported_web_model_body">Looks like the model is a web-only model and is not supported by the app.</string>
   <string name="dialog_switch_model_title">Switch model?</string>
-  <string name="dialog_switch_model_body">This will unload \"%1$s\" and load \"%2$s\".\n\nThe server will restart.</string>
+  <string name="dialog_switch_model_body">This will unload \"%1$s\" and load \"%2$s\".\n\nThe server will restart.\n\nNote: switching between large models on devices with limited RAM may fail because the LiteRT runtime cannot always release native GPU memory between models. If the app crashes or the new model fails to load, fully restart the app (or the device) and try loading the new model directly.</string>
   <string name="label_current_model">current model</string>
   <string name="button_switch">Switch</string>
   <string name="label_import_model">Import model</string>
