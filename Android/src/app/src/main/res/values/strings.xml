@@ -303,6 +303,9 @@
   <string name="settings_host_port_label" translatable="false">Host Port (1024–65535)</string>
   <string name="settings_host_port_placeholder" translatable="false">8000</string>
   <string name="settings_host_port_desc" translatable="false">Default: 8000. Requires server restart to take effect</string>
+  <string name="settings_bind_host_label" translatable="false">Bind Host</string>
+  <string name="settings_bind_host_placeholder" translatable="false">0.0.0.0</string>
+  <string name="settings_bind_host_desc" translatable="false">Address to bind. 0.0.0.0 = all interfaces (device reachable on LAN), 127.0.0.1 = loopback only. Requires server restart</string>
   <string name="settings_bearer_token" translatable="false">Require Bearer Token</string>
   <string name="settings_bearer_token_desc" translatable="false">Protect the API with a bearer token. Clients must include it in the Authorization header</string>
   <string name="settings_bearer_copy_tooltip" translatable="false">Copy token</string>
@@ -976,6 +979,7 @@
   <!-- SettingsViewModel: validation errors -->
   <string name="validation_invalid_port">Invalid port number</string>
   <string name="validation_port_required">A port number is required</string>
+  <string name="validation_bind_host_required" translatable="false">A bind host is required</string>
   <string name="validation_port_range">Port must be between %1$d and %2$d</string>
   <string name="validation_numeric_range">%1$s must be between %2$d and %3$d</string>
   <string name="validation_numeric_range_with_unit">%1$s must be between %2$d and %3$d %4$s</string>

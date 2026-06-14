@@ -99,6 +99,7 @@ private val INFERENCE_PATHS = setOf(
 )
 
 class KtorServer(
+  private val host: String,
   private val port: Int,
   private val serviceContext: Context,
   private val endpointHandlers: EndpointHandlers,
@@ -147,7 +148,7 @@ class KtorServer(
   }
 
   fun start() {
-    engine = embeddedServer(CIO, port = port, host = "0.0.0.0") {
+    engine = embeddedServer(CIO, port = port, host = host) {
       configureCors()
       install(ContentNegotiation) { json(json) }
       install(StatusPages) {

@@ -144,6 +144,40 @@
       }
     },
     {
+      "name": "Qwen2.5-3B-Instruct",
+      "modelId": "litert-community/Qwen2.5-3B-Instruct",
+      "modelFile": "Qwen2.5-3B-Instruct_multi-prefill-seq_q8_ekv4096.litertlm",
+      "description": "A variant of [Qwen/Qwen2.5-3B-Instruct](https://huggingface.co/Qwen/Qwen2.5-3B-Instruct) ready for deployment on Android using [LiteRT-LM](https://github.com/google-ai-edge/LiteRT-LM/blob/main/kotlin/README.md).",
+      "sizeInBytes": 2610193408,
+      "minDeviceMemoryInGb": 8,
+      "commitHash": "19edb84c69a0212f29a6ef17ba0d6f278b6a1614",
+      "minAppVersion": "0.8.0",
+      "defaultConfig": {
+        "topK": 20,
+        "topP": 0.8,
+        "temperature": 0.7,
+        "maxTokens": 4096,
+        "accelerators": "gpu,cpu"
+      }
+    },
+    {
+      "name": "Gemma3-2B-IT",
+      "modelId": "litert-community/Gemma3-2B-IT",
+      "modelFile": "gemma3-2b-it-int4.litertlm",
+      "description": "A variant of [google/gemma-3-2b-it](https://huggingface.co/google/gemma-3-2b-it) with 4-bit quantization ready for deployment on Android using [LiteRT-LM](https://github.com/google-ai-edge/LiteRT-LM/blob/main/kotlin/README.md).",
+      "sizeInBytes": 1390434304,
+      "minDeviceMemoryInGb": 6,
+      "commitHash": "42d538a932e8d5b12e6b3b455f5572560bd60b2c",
+      "minAppVersion": "0.8.0",
+      "defaultConfig": {
+        "topK": 64,
+        "topP": 0.95,
+        "temperature": 1.0,
+        "maxTokens": 2048,
+        "accelerators": "gpu,cpu"
+      }
+    },
+    {
       "name": "DeepSeek-R1-Distill-Qwen-1.5B",
       "modelId": "litert-community/DeepSeek-R1-Distill-Qwen-1.5B",
       "modelFile": "DeepSeek-R1-Distill-Qwen-1.5B_multi-prefill-seq_q8_ekv4096.litertlm",
@@ -157,6 +191,23 @@
         "topP": 0.95,
         "temperature": 1.0,
         "maxTokens": 4096,
+        "accelerators": "gpu,cpu"
+      }
+    },
+    {
+      "name": "LLaMA-3.2-1B-Instruct",
+      "modelId": "litert-community/LLaMA-3.2-1B-Instruct",
+      "modelFile": "LLaMA-3.2-1B-Instruct_q8.litertlm",
+      "description": "A variant of [meta-llama/Llama-3.2-1B-Instruct](https://huggingface.co/meta-llama/Llama-3.2-1B-Instruct) with 8-bit quantization ready for deployment on Android using [LiteRT-LM](https://github.com/google-ai-edge/LiteRT-LM/blob/main/kotlin/README.md).",
+      "sizeInBytes": 2003311616,
+      "minDeviceMemoryInGb": 6,
+      "commitHash": "42d538a932e8d5b12e6b3b455f5572560bd60b2c",
+      "minAppVersion": "0.8.0",
+      "defaultConfig": {
+        "topK": 64,
+        "topP": 0.95,
+        "temperature": 1.0,
+        "maxTokens": 2048,
         "accelerators": "gpu,cpu"
       }
     }

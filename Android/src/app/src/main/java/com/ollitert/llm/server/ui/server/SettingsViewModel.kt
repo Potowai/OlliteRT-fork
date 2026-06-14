@@ -157,6 +157,7 @@ class SettingsViewModel @Inject constructor(
   // ─── UI State (non-persisted) ────────────────────────────────────────────
 
   var portText by mutableStateOf(portEntry.saved.toString())
+  val hostEntry = entry<String>("bind_host")
   var hfTokenVisible by mutableStateOf(false)
   var showModelDropdown by mutableStateOf(false)
 
@@ -299,7 +300,8 @@ class SettingsViewModel @Inject constructor(
       timeoutResponsesEntry.isChanged || timeoutStreamingEntry.isChanged ||
       timeoutBlockingEntry.isChanged || timeoutWarmupEntry.isChanged ||
       timeoutKeepAliveRecheckEntry.isChanged || timeoutCleanupAwaitEntry.isChanged
-    val needsRestart = isPortChanged || isEagerVisionChanged || isTimeoutChanged
+    val isHostChanged = (entryByKey["bind_host"] as? SettingEntry<String>)?.isChanged ?: false
+    val needsRestart = isPortChanged || isEagerVisionChanged || isTimeoutChanged || isHostChanged
     val isServerActive = serverStatus == ServerStatus.RUNNING || serverStatus == ServerStatus.LOADING
 
     // Sync portEntry.current from portText before persisting (port is edited as String)

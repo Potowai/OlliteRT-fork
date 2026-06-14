@@ -433,6 +433,7 @@ class ServerService : Service() {
       nextRequestId = { nextRequestId() },
     )
     server = KtorServer(
+      host = ServerPrefs.getHost(this),
       port = port,
       serviceContext = this,
       endpointHandlers = handlers,

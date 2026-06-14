@@ -190,6 +190,20 @@ val HOST_PORT = SettingDef.NumericInput(
   write = { ctx, v -> ServerPrefs.save(ctx, v) },
 )
 
+val BIND_HOST = SettingDef.TextInput(
+  key = "bind_host",
+  labelRes = R.string.settings_bind_host_label,
+  descriptionRes = R.string.settings_bind_host_desc,
+  card = CardId.SERVER_CONFIG,
+  default = "0.0.0.0",
+  prefsKey = "host",
+  validate = { input, ctx ->
+    if (input.isBlank()) ctx.getString(R.string.validation_bind_host_required) else null
+  },
+  read = { ServerPrefs.getHost(it) },
+  write = { ctx, v -> ServerPrefs.setHost(ctx, v) },
+)
+
 val BEARER_TOKEN = SettingDef.Custom(
   key = "bearer_token",
   labelRes = R.string.settings_bearer_token,
@@ -837,7 +851,7 @@ val allSettingDefs: List<SettingDef> = listOf(
   WRAP_LOG_TEXT, AUTO_EXPAND_LOGS, STREAM_RESPONSE_PREVIEW, KEEP_PARTIAL_RESPONSE, COMPACT_IMAGE_DATA,
   HIDE_HEALTH_LOGS, CLEAR_LOGS_ON_STOP, CONFIRM_CLEAR_LOGS,
   // Server Config
-  HOST_PORT, BEARER_TOKEN, CORS_ORIGINS,
+  HOST_PORT, BIND_HOST, BEARER_TOKEN, CORS_ORIGINS,
   // Auto-Launch
   DEFAULT_MODEL, START_ON_BOOT, KEEP_ALIVE, KEEP_ALIVE_TIMEOUT, DONTKILLMYAPP,
   // Model Behaviour
@@ -895,7 +909,7 @@ val allCardDefs: List<CardDef> = listOf(
     id = CardId.SERVER_CONFIG,
     titleRes = R.string.settings_card_server_config,
     icon = CardIcon.Vector(Icons.Outlined.Tune),
-    settings = listOf(HOST_PORT, BEARER_TOKEN, CORS_ORIGINS),
+    settings = listOf(HOST_PORT, BIND_HOST, BEARER_TOKEN, CORS_ORIGINS),
   ),
   CardDef(
     id = CardId.AUTO_LAUNCH,

@@ -37,6 +37,8 @@ private const val PREFS_NAME = "llm_http_prefs"
 // ═══════════════════════════════════════════════════════════════════════════
 
 private const val KEY_PORT = "port"
+private const val KEY_HOST = "host"
+private const val DEFAULT_HOST = "0.0.0.0"
 private const val KEY_BEARER_TOKEN = "bearer_token"
 private const val KEY_HF_TOKEN = "hf_token"
 private const val KEY_CORS_ALLOWED_ORIGINS = "cors_allowed_origins"
@@ -336,6 +338,14 @@ object ServerPrefs {
 
   fun save(context: Context, port: Int) {
     prefs(context).edit { putInt(KEY_PORT, port.coerceIn(1, 65535)) }
+  }
+
+  fun getHost(context: Context): String =
+    prefs(context).getString(KEY_HOST, DEFAULT_HOST) ?: DEFAULT_HOST
+
+  fun setHost(context: Context, host: String) {
+    require(host.isNotBlank()) { "Host must not be blank" }
+    prefs(context).edit { putString(KEY_HOST, host.trim()) }
   }
 
   fun getBearerToken(context: Context): String =
